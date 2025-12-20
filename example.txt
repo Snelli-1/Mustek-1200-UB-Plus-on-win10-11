@@ -1,0 +1,42 @@
+# ================================
+# Scanner Settings Configuration
+# ================================
+
+# --- Resolution (DPI) ---
+# Common values: 75 (fast preview), 150 (documents), 300 (high quality), 600 (photos)
+--resolution 75
+
+# --- Color Mode ---
+# Options: Color, Gray, Lineart
+--mode Gray
+
+# --- Output Format ---
+# Options: jpeg, png, pnm, tiff
+--format=jpeg
+
+# --- Scan Area (optional) ---
+# Units: millimeters (mm)
+# Uncomment to restrict scan area (e.g. A4 = 210x297 mm)
+# --x 0 --y 0 --width 210 --height 297
+
+# --- Brightness & Contrast (optional) ---
+# Values: -100 to +100
+# --brightness 0
+# --contrast 0
+
+# --- File Save Path ---
+# Windows path via WSL mount
+# Example: /mnt/c/Users/Admin/Documents/Scans
+SAVE_PATH=/mnt/c/Users/Admin/Pictures
+
+# --- File Name Prefix ---
+# Will be combined with timestamp
+#FILENAME_PREFIX=scan
+
+# --- File Extension Override ---
+# Normally matches --format, but you can force extension if needed
+#FILE_EXT=jpg
+
+# ================================
+# End of Settings
+# ================================
