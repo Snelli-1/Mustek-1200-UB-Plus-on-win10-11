@@ -1,0 +1,190 @@
+WSL2 + USBIPD + SANE + Mustek 1200 UB Plus
+Teljes, elejétől végéig tartó dokumentáció
+Készítette: Milán rendszere alapján
+
+============================================================
+0. Előkészületek – WSL verzió ellenőrzése és konvertálása
+============================================================
+
+1. Ellenőrizd, milyen WSL verziót használsz:
+   wsl -l -v
+
+2. Ha a disztró WSL1, konvertáld WSL2-re:
+   wsl --set-version Ubuntu-20.04 2
+
+3. Állítsd be a WSL2-t alapértelmezettnek:
+   wsl --set-default-version 2
+
+4. Ellenőrizd újra:
+   wsl -l -v
+
+   A kimenetben így kell kinéznie:
+   Ubuntu-20.04    Running    2
+
+============================================================
+1. USBIPD telepítése Windows 10/11 alatt
+============================================================
+
+1. Nyiss egy rendszergazda PowerShellt:
+   Start → PowerShell → jobb klikk → Run as Administrator
+
+2. Telepítsd az USBIPD-t:
+   winget install usbipd
+
+3. Indítsd újra a gépet (fontos).
+
+============================================================
+2. USB eszköz csatlakoztatása WSL2-höz
+============================================================
+
+1. Listázd az USB eszközöket:
+   usbipd list
+
+2. Keresd meg a Mustek szkennert:
+   Példa:
+   1-1    05d8:4002   Unknown device
+
+3. Oszd meg (bind):
+   usbipd bind --busid 1-1
+
+4. Add át WSL-nek:
+   usbipd attach --wsl --busid 1-1
+
+5. Ellenőrizd WSL-ben:
+   wsl -d Ubuntu-20.04
+   lsusb
+
+   Látnod kell:
+   ID 05d8:4002 Ultima Electronics Corp.
+
+============================================================
+3. SANE telepítése WSL2 alatt
+============================================================
+
+1. Frissítsd a csomaglistát:
+   sudo apt update
+
+2. Telepítsd a SANE-t:
+   sudo apt install sane-utils libsane libsane-common
+
+3. Ellenőrizd, hogy létezik-e a config könyvtár:
+   ls /etc/sane.d
+
+============================================================
+4. Firmware telepítése
+============================================================
+
+1. Hozd létre a firmware könyvtárat:
+   sudo mkdir -p /usr/share/sane/gt68xx
+
+2. Másold be a firmware-t:
+   sudo cp /tmp/SBfw.usb /usr/share/sane/gt68xx/
+   sudo chmod 644 /usr/share/sane/gt68xx/SBfw.usb
+
+3. Ellenőrizd:
+   ls -l /usr/share/sane/gt68xx
+
+============================================================
+5. GT68xx backend konfigurálása
+============================================================
+
+1. Nyisd meg a configot:
+   sudo nano /etc/sane.d/gt68xx.conf
+
+2. Törölj ki minden firmware sort.
+
+3. Add hozzá ezt az egy sort:
+   firmware /usr/share/sane/gt68xx/SBfw.usb
+
+4. Mentés:
+   CTRL+O → Enter → CTRL+X
+
+============================================================
+6. A GT68xx backend hibája és a végső fix
+============================================================
+
+A libsane-gt68xx backend beépített fallback firmware neve:
+   PS1fw.usb
+
+Ezért a backend akkor is ezt keresi, ha a config jó.
+
+A megoldás: szimbolikus link létrehozása.
+
+1. Hozd létre a linket:
+   sudo ln -s /usr/share/sane/gt68xx/SBfw.usb /usr/share/sane/gt68xx/PS1fw.usb
+
+2. Ellenőrizd:
+   ls -l /usr/share/sane/gt68xx
+
+   Látnod kell:
+   PS1fw.usb -> /usr/share/sane/gt68xx/SBfw.usb
+
+============================================================
+7. Szkenner tesztelése
+============================================================
+
+1. Ellenőrizd, hogy WSL látja-e:
+   lsusb
+
+2. SANE felismerés:
+   sudo sane-find-scanner
+
+3. Backend felismerés:
+   sudo scanimage -L
+
+   Ha jó:
+   device `gt68xx:libusb:001:003' is a Mustek BearPaw 1200 CU flatbed scanner
+
+4. Próbaszkennelés:
+   sudo scanimage --format=png --resolution 300 > test.png
+
+5. A fájl Windowsból itt található:
+   \\wsl$\Ubuntu-20.04\home\felhasznalonev\test.png
+
+============================================================
+8. Gyakori hibák és megoldások
+============================================================
+
+HIBA:
+  "No such file or directory: /etc/sane.d"
+MEGOLDÁS:
+  sudo apt install sane-utils
+
+HIBA:
+  "Couldn't open firmware file PS1fw.usb"
+OK:
+  A backend fallback firmware-t keres.
+MEGOLDÁS:
+  sudo ln -s /usr/share/sane/gt68xx/SBfw.usb /usr/share/sane/gt68xx/PS1fw.usb
+
+HIBA:
+  "Access denied (insufficient permissions)"
+MEGOLDÁS:
+  sudo scanimage -L
+
+HIBA:
+  "Device not found"
+MEGOLDÁS:
+  usbipd attach --wsl --busid 1-1
+
+HIBA:
+  "Invalid argument"
+OK:
+  Firmware nem töltődött be.
+MEGOLDÁS:
+  Symlink fix + WSL újraindítás:
+  wsl --shutdown
+
+============================================================
+9. Hasznos parancsok
+============================================================
+
+Szkennelés 300 DPI színes módban:
+  sudo scanimage --mode Color --resolution 300 --format=png > scan.png
+
+Szkennelés automatikus fájlnévvel:
+  sudo scanimage --format=png > scan_$(date +%Y%m%d_%H%M%S).png
+
+============================================================
+VÉGE
+============================================================

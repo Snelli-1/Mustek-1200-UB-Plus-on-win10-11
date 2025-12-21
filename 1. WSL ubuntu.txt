@@ -1,0 +1,117 @@
+===========================================
+WSL + Ubuntu telepítési útmutató (Windows 10)
+===========================================
+
+1. Windows-szolgáltatások bekapcsolása
+--------------------------------------
+1) Win + R → optionalfeatures.exe → Enter
+2) Pipáld be:
+   - Windows Subsystem for Linux
+   - Virtual Machine Platform
+3) OK → Újraindítás
+
+2. Funkciók ellenőrzése és aktiválása (CMD admin)
+--------------------------------------------------
+Nyiss CMD-t rendszergazdaként, majd futtasd:
+
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+Ha mindkettő 100% sikeres → Újraindítás.
+
+3. WSL2 beállítása
+------------------
+CMD admin:
+
+wsl --set-default-version 2
+
+4. Elérhető Linux disztribúciók listázása
+-----------------------------------------
+wsl --list --online
+
+5. Ubuntu telepítése (Windows 10 ajánlott módszer)
+---------------------------------------------------
+A wsl --install Windows 10-en gyakran nem tölti le a disztrót.
+Ezért:
+
+1) Nyisd meg a Microsoft Store-t
+2) Keresd: "Ubuntu 20.04 LTS" vagy "Ubuntu 22.04 LTS"
+3) Install / Telepítés
+4) Indítás a Start menüből
+
+6. Ubuntu első indítása
+------------------------
+Első indításkor megjelenik:
+
+Installing, this may take a few minutes...
+Please create a default UNIX user account.
+
+Add meg:
+- UNIX username (pl. snelli)
+- jelszó (kétszer)
+
+Sikeres telepítés után:
+
+Installation successful!
+snelli@DESKTOP-XXXX:~$
+
+7. Ajánlott első parancsok Ubuntun belül
+----------------------------------------
+sudo apt update
+sudo apt upgrade -y
+whoami
+pwd
+ls
+
+8. WSL állapot ellenőrzése Windows oldalról
+-------------------------------------------
+wsl --status
+wsl --list --verbose
+
+Ha VERSION = 1 → átváltás:
+
+wsl --set-version Ubuntu-20.04 2
+(vagy a pontos disztrónév)
+
+===========================================
+HIBAKEZELÉS (Troubleshooting)
+===========================================
+
+Hiba 1: 0x8007019e – A Linuxos Windows-alrendszer nincs engedélyezve
+--------------------------------------------------------------------
+Oka: WSL nincs bekapcsolva.
+
+Megoldás:
+- Win + R → optionalfeatures.exe
+- Pipáld be:
+  * Windows Subsystem for Linux
+  * Virtual Machine Platform
+- Újraindítás
+- DISM parancsok újra:
+
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+Hiba 2: wsl --install → Installing 0,0% és nem megy tovább
+-----------------------------------------------------------
+Oka: Windows 10-en a wsl --install nem tölti le a disztrót.
+
+Megoldás:
+- Microsoft Store → Ubuntu → Install
+
+Hiba 3: WslRegisterDistribution failed
+--------------------------------------
+Oka: hibás vagy félbeszakadt telepítés.
+
+Megoldás:
+wsl --unregister Ubuntu-22.04
+Store-ból újratelepítés.
+
+Hiba 4: WSL1 indul el WSL2 helyett
+----------------------------------
+Megoldás:
+wsl --set-version Ubuntu-20.04 2
+
+===========================================
+A telepítés kész. Ubuntu használatra kész.
+===========================================
