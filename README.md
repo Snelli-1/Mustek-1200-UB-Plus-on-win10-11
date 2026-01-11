@@ -1,3 +1,6 @@
+while worcking:
+https://www.youtube.com/shorts/YP1jf1zOvU4
+
 # Mustek-1200-UB-Plus-on-win10-11
 Use the Mustek 1200 UB Plus scanner 
 on Windows 10/11 via WSL and Linux SANE. 
